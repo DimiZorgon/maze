@@ -87,7 +87,7 @@ function App() {
       const key = Math.abs(dx) > Math.abs(dy)
         ? (dx > 0 ? 'ArrowRight' : 'ArrowLeft')
         : (dy > 0 ? 'ArrowDown' : 'ArrowUp');
-      handleKeyDown({ key, preventDefault: () => {} } as KeyboardEvent);
+      handleKeyDown({ key, preventDefault: () => { } } as KeyboardEvent);
       touchStart.current = touchEnd;
     }
   }, [handleKeyDown]);
@@ -130,7 +130,8 @@ function App() {
           style={{
             gridTemplateColumns: `repeat(${gridSize}, 1fr)`,
             gridTemplateRows: `repeat(${gridSize}, 1fr)`,
-            width: `${Math.min(gridSize * 30, 800)}px`
+            width: '100%',
+            maxWidth: `${Math.min(gridSize * 30, 800)}px`
           }}
         >
           {maze.map(row => row.map(cell => {
