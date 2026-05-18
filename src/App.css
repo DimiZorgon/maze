@@ -182,3 +182,196 @@
     border-right-color: var(--border);
   }
 }
+
+.app-container.light {
+  background: #fff;
+  color: #000;
+}
+
+.app-container.dark {
+  background: #000;
+  color: #fff;
+}
+
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+}
+
+.app-header .timer,
+.app-header .level-label {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.theme-toggle {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  border: 2px solid currentColor;
+  background: transparent;
+  color: inherit;
+  padding: 0.8rem 1rem;
+  border-radius: 999px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  z-index: 20;
+}
+
+.maze-board {
+  display: grid;
+  justify-content: center;
+  align-items: center;
+  margin: 1rem auto;
+  gap: 0;
+  border: 2px solid currentColor;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+}
+
+.maze-cell {
+  position: relative;
+  background: transparent;
+}
+
+.player-dot {
+  background: currentColor;
+}
+
+.exit-dot {
+  color: currentColor;
+}
+
+.app-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.app-container.dark {
+  background: #111;
+  color: #f3f4f6;
+}
+
+main {
+  flex: 1;
+  padding: 1rem;
+}
+
+.level-info {
+  max-width: 720px;
+  margin: 0 auto 1rem;
+}
+
+.level-info .game-state {
+  margin: 0.5rem 0 0;
+  color: var(--accent);
+}
+
+.maze-board {
+  display: grid;
+  justify-content: center;
+  align-items: center;
+  margin: 1rem auto;
+  gap: 0;
+  background: var(--bg);
+  border: 2px solid var(--text-h);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+}
+
+.maze-cell {
+  position: relative;
+  background: transparent;
+}
+
+.player-dot,
+.exit-dot {
+  position: absolute;
+  inset: 20%;
+  display: block;
+  border-radius: 50%;
+}
+
+.player-dot {
+  background: var(--text-h);
+}
+
+.exit-dot {
+  background: transparent;
+  color: var(--accent);
+  font-size: 0.9rem;
+  display: grid;
+  place-items: center;
+}
+
+.controls-panel {
+  width: min(720px, 100%);
+  margin: 0 auto 1.5rem;
+  padding: 1rem 0;
+}
+
+.controls-actions {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.controls-actions button,
+.navigation-pad button {
+  border: 2px solid var(--text-h);
+  background: transparent;
+  color: inherit;
+  padding: 0.8rem 1rem;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 1rem;
+  min-width: 120px;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.controls-actions button:hover,
+.navigation-pad button:hover {
+  background: rgba(0, 0, 0, 0.06);
+  transform: translateY(-1px);
+}
+
+.controls-actions button:disabled,
+.navigation-pad button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.navigation-pad {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.navigation-pad > div {
+  display: grid;
+  grid-template-columns: repeat(3, 3rem);
+  gap: 0.5rem;
+}
+
+.navigation-pad button {
+  width: 3rem;
+  height: 3rem;
+  min-width: auto;
+}
+
+@media (max-width: 600px) {
+  .controls-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .navigation-pad > div {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}

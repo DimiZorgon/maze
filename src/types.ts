@@ -6,6 +6,10 @@ export interface Position {
   y: number;
 }
 
+export type Direction = 'UP' | 'DOWN' | 'LEFT' | 'RIGHT';
+
+export type MazeGrid = Cell[][];
+
 // theme
 export type Theme = 'light' | 'dark';
 

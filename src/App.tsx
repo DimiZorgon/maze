@@ -1,122 +1,115 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import { useState, useEffect, useCallback } from 'react';
+import { generateMaze, type Cell } from './mazeGenerator';
+import './index.css';
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [level, setLevel] = useState(1);
+  const [gridSize, setGridSize] = useState(5);
+  const [maze, setMaze] = useState<Cell[][]>([]);
+  const [playerPos, setPlayerPos] = useState({ x: 0, y: 0 });
+  const [endPos, setEndPos] = useState({ x: 0, y: 0 });
+  const [theme, setTheme] = useState<'light' | 'dark'>('light');
+  const [time, setTime] = useState(0);
+
+  const initLevel = useCallback((lvl: number) => {
+    const newSize = 5 + lvl + Math.floor(Math.random() * 3);
+    setGridSize(newSize);
+    setMaze(generateMaze(newSize, newSize));
+    const corners = [
+      { start: { x: 0, y: 0 }, end: { x: newSize - 1, y: newSize - 1 } },
+      { start: { x: newSize - 1, y: 0 }, end: { x: 0, y: newSize - 1 } },
+      { start: { x: 0, y: newSize - 1 }, end: { x: newSize - 1, y: 0 } },
+      { start: { x: newSize - 1, y: newSize - 1 }, end: { x: 0, y: 0 } }
+    ];
+    const picked = corners[Math.floor(Math.random() * corners.length)];
+    setPlayerPos(picked.start);
+    setEndPos(picked.end);
+  }, []);
+
+  useEffect(() => {
+    initLevel(level);
+  }, [level, initLevel]);
+
+  useEffect(() => {
+    setTime(0);
+  }, [level]);
+
+  useEffect(() => {
+    const timer = setInterval(() => setTime(t => t + 1), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const handleKeyDown = useCallback((e: KeyboardEvent) => {
+    if (e.key.startsWith('Arrow')) e.preventDefault();
+    if (!maze.length) return;
+
+    setPlayerPos(prev => {
+      const { x, y } = prev;
+      const currentCell = maze[y][x];
+      let nx = x, ny = y;
+
+      if (e.key === 'ArrowUp' && !currentCell.walls.top) ny--;
+      else if (e.key === 'ArrowRight' && !currentCell.walls.right) nx++;
+      else if (e.key === 'ArrowDown' && !currentCell.walls.bottom) ny++;
+      else if (e.key === 'ArrowLeft' && !currentCell.walls.left) nx--;
+
+      if (nx === endPos.x && ny === endPos.y) {
+        setTimeout(() => setLevel(l => l + 1), 50);
+        return prev;
+      }
+
+      return { x: nx, y: ny };
+    });
+  }, [maze, gridSize, endPos]);
+
+  useEffect(() => {
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [handleKeyDown]);
+
+  const toggleTheme = () => {
+    setTheme(prev => prev === 'light' ? 'dark' : 'light');
+  };
+
+  const formatTime = (s: number) => {
+    const m = Math.floor(s / 60);
+    const rs = s % 60;
+    return `${m.toString().padStart(2, '0')}:${rs.toString().padStart(2, '0')}`;
+  };
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
+    <div className={`app-container ${theme}`}>
+      <header>
+        <h1>Level {level}</h1>
+        <div className="timer">{formatTime(time)}</div>
+        <button onClick={toggleTheme}>Mode {theme === 'light' ? 'Nuit' : 'Jour'}</button>
+      </header>
+      <main>
+        <div
+          className="maze"
+          style={{
+            gridTemplateColumns: `repeat(${gridSize}, 1fr)`,
+            gridTemplateRows: `repeat(${gridSize}, 1fr)`,
+            width: `${Math.min(gridSize * 30, 800)}px`
+          }}
         >
-          Count is {count}
-        </button>
-      </section>
-
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
+          {maze.map(row => row.map(cell => {
+            const isPlayer = playerPos.x === cell.x && playerPos.y === cell.y;
+            const isEnd = cell.x === endPos.x && cell.y === endPos.y;
+            return (
+              <div
+                key={`${cell.x}-${cell.y}`}
+                className={`cell ${cell.walls.top ? 'top' : ''} ${cell.walls.right ? 'right' : ''} ${cell.walls.bottom ? 'bottom' : ''} ${cell.walls.left ? 'left' : ''}`}
+              >
+                {isPlayer && <div className="player" />}
+                {isEnd && <div className="flag">🚩</div>}
+              </div>
+            );
+          }))}
         </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+      </main>
+    </div>
+  );
 }
 
-export default App
+export default App;
