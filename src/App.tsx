@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { generateMaze, type Cell } from './mazeGenerator';
 import './index.css';
 
@@ -39,10 +39,14 @@ function App() {
     return () => clearInterval(timer);
   }, []);
 
+  const touchStart = useRef<{ x: number; y: number } | null>(null);
+
   useEffect(() => {
+    let timeoutId: number | ReturnType<typeof setTimeout>;
     if (maze.length > 0 && playerPos.x === endPos.x && playerPos.y === endPos.y) {
-      setTimeout(() => setLevel(l => l + 1), 50);
+      timeoutId = setTimeout(() => setLevel(l => l + 1), 50);
     }
+    return () => clearTimeout(timeoutId);
   }, [playerPos, endPos, maze]);
 
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
@@ -68,6 +72,40 @@ function App() {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [handleKeyDown]);
+
+  const handleTouchStart = useCallback((e: TouchEvent) => {
+    touchStart.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+  }, []);
+
+  const handleTouchMove = useCallback((e: TouchEvent) => {
+    if (!touchStart.current) return;
+    const touchEnd = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    const dx = touchEnd.x - touchStart.current.x;
+    const dy = touchEnd.y - touchStart.current.y;
+
+    if (Math.abs(dx) > 30 || Math.abs(dy) > 30) {
+      const key = Math.abs(dx) > Math.abs(dy)
+        ? (dx > 0 ? 'ArrowRight' : 'ArrowLeft')
+        : (dy > 0 ? 'ArrowDown' : 'ArrowUp');
+      handleKeyDown({ key, preventDefault: () => {} } as KeyboardEvent);
+      touchStart.current = touchEnd;
+    }
+  }, [handleKeyDown]);
+
+  const handleTouchEnd = useCallback(() => {
+    touchStart.current = null;
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener('touchstart', handleTouchStart);
+    window.addEventListener('touchmove', handleTouchMove, { passive: false });
+    window.addEventListener('touchend', handleTouchEnd);
+    return () => {
+      window.removeEventListener('touchstart', handleTouchStart);
+      window.removeEventListener('touchmove', handleTouchMove);
+      window.removeEventListener('touchend', handleTouchEnd);
+    };
+  }, [handleTouchStart, handleTouchMove, handleTouchEnd]);
 
   const toggleTheme = () => {
     setTheme(prev => prev === 'light' ? 'dark' : 'light');
