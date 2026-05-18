@@ -7,8 +7,6 @@
 body {
   font-family: sans-serif;
   overflow: hidden;
-  touch-action: none;
-  overscroll-behavior: none;
 }
 
 .app-container {
@@ -53,12 +51,16 @@ main {
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 20px;
+  padding: 5px;
+  width: 100%;
+  min-height: 0;
+  container-type: size;
 }
 
 .maze {
   display: grid;
-  aspect-ratio: 1;
+  width: 100cqmin;
+  height: 100cqmin;
 }
 
 .cell {

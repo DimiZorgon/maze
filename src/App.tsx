@@ -129,9 +129,7 @@ function App() {
           className="maze"
           style={{
             gridTemplateColumns: `repeat(${gridSize}, 1fr)`,
-            gridTemplateRows: `repeat(${gridSize}, 1fr)`,
-            width: '100%',
-            maxWidth: `${Math.min(gridSize * 30, 800)}px`
+            gridTemplateRows: `repeat(${gridSize}, 1fr)`
           }}
         >
           {maze.map(row => row.map(cell => {
