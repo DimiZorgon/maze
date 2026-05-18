@@ -39,12 +39,19 @@ function App() {
     return () => clearInterval(timer);
   }, []);
 
+  useEffect(() => {
+    if (maze.length > 0 && playerPos.x === endPos.x && playerPos.y === endPos.y) {
+      setTimeout(() => setLevel(l => l + 1), 50);
+    }
+  }, [playerPos, endPos, maze]);
+
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
     if (e.key.startsWith('Arrow')) e.preventDefault();
     if (!maze.length) return;
 
     setPlayerPos(prev => {
       const { x, y } = prev;
+      if (!maze[y] || !maze[y][x]) return prev;
       const currentCell = maze[y][x];
       let nx = x, ny = y;
 
@@ -53,14 +60,9 @@ function App() {
       else if (e.key === 'ArrowDown' && !currentCell.walls.bottom) ny++;
       else if (e.key === 'ArrowLeft' && !currentCell.walls.left) nx--;
 
-      if (nx === endPos.x && ny === endPos.y) {
-        setTimeout(() => setLevel(l => l + 1), 50);
-        return prev;
-      }
-
       return { x: nx, y: ny };
     });
-  }, [maze, gridSize, endPos]);
+  }, [maze]);
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);
