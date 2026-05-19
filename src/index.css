@@ -67,9 +67,8 @@ header h1 {
 }
 
 header button {
-  bottom: 25px;
-  left: 50%;
-  transform: translateX(-50%);
+  top: 58px;
+  right: 30px;
 }
 
 button {
