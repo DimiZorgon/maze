@@ -1,21 +1,30 @@
-* {
+/* ─── Reset ──────────────────────────────────────────────────────────────── */
+*,
+*::before,
+*::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
 }
 
+html,
 body {
-  font-family: sans-serif;
+  width: 100%;
+  height: 100%;
   overflow: hidden;
 }
 
+/* ─── App container : exactement l'écran visible ─────────────────────────── */
+/*
+  100dvh gère correctement les barres de navigation mobiles/tablettes
+  (là où 100vh échoue, dvh suit la hauteur réellement disponible).
+  overflow: hidden empêche tout scroll accidentel.
+*/
 .app-container {
-  height: 100vh;
-  width: 100vw;
   position: relative;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  width: 100vw;
+  height: 100dvh;
+  overflow: hidden;
 }
 
 .app-container.light {
@@ -28,26 +37,28 @@ body {
   color: #ffffff;
 }
 
+/* ─── Header : HUD flottant en position absolue ──────────────────────────── */
+/*
+  inset: 0 lui donne la taille complète de .app-container.
+  pointer-events: none sur le conteneur, puis rétabli sur chaque enfant,
+  pour que les clics traversent vers le labyrinthe en dessous.
+  z-index: 10 garantit que le HUD reste toujours visible par-dessus .maze.
+*/
 header {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  inset: 0;
   pointer-events: none;
+  z-index: 10;
 }
 
 header>* {
   position: absolute;
   pointer-events: auto;
-  margin: 0;
 }
 
 header .timer {
-  top: 25px;
-  left: 30px;
-  font-size: 1.5rem;
-  font-weight: bold;
+  top: 20px;
+  left: 20px;
 }
 
 header h1 {
@@ -57,7 +68,8 @@ header h1 {
 
 header button {
   bottom: 25px;
-  right: 30px;
+  left: 50%;
+  transform: translateX(-50%);
 }
 
 button {
@@ -70,29 +82,49 @@ button {
   border-radius: 4px;
 }
 
+/* ─── Main : conteneur d'alignement centré ───────────────────────────────── */
+/*
+  width/height: 100% → occupe tout .app-container (qui a une taille définie).
+  container-type: size → expose cqw/cqh aux enfants, calculés APRÈS padding.
+  Le padding crée la marge de sécurité sous le HUD :
+    - portrait  : 70px haut/bas (timer + bouton), 20px côtés
+    - paysage   : 16px haut, 100px côtés (h1/timer débordent en horizontal),
+                  50px bas (bouton centré en bas)
+*/
 main {
   width: 100%;
   height: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 20px;
+  padding: 70px 20px;
+  /* Rend cqw/cqh disponibles pour .maze, basés sur la boîte de contenu de main */
   container-type: size;
 }
 
 @media (orientation: landscape) {
   main {
-    padding: 20px 140px;
+    padding: 16px 100px 50px 100px;
   }
 }
 
+/* ─── Maze : carré parfait, aussi grand que possible, jamais débordant ───── */
+/*
+  min(100cqw, 100cqh) : prend le plus petit des deux axes de la boîte de
+  contenu de main (après son padding).
+  → Portrait extrême  : limité par la largeur  (100cqw < 100cqh)
+  → Paysage extrême   : limité par la hauteur  (100cqh < 100cqw)
+  → Carré quelconque  : garanti dans tous les cas, sans max-width/max-height
+    supplémentaires, sans media query, sans magic numbers.
+  aspect-ratio: 1 est conservé comme filet de sécurité sémantique.
+*/
 .maze {
   display: grid;
-  width: 100cqmin;
-  height: 100cqmin;
-  margin: auto;
+  aspect-ratio: 1;
+  width: min(100cqw, 100cqh);
 }
 
+/* ─── Cellules ───────────────────────────────────────────────────────────── */
 .cell {
   border: 1px solid transparent;
   position: relative;
@@ -100,8 +132,6 @@ main {
   justify-content: center;
   align-items: center;
 }
-
-/* No default border color */
 
 .app-container.light .cell.top {
   border-top: 1px solid #000;
@@ -135,6 +165,7 @@ main {
   border-left: 1px solid #fff;
 }
 
+/* ─── Joueur & drapeau ───────────────────────────────────────────────────── */
 .player {
   width: 60%;
   height: 60%;
