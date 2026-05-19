@@ -12,6 +12,10 @@ body {
   width: 100%;
   height: 100%;
   overflow: hidden;
+  /* Bloque le scroll élastique (bounce) natif iOS/Android */
+  overscroll-behavior: none;
+  /* Désactive toute gestion tactile native (pan, zoom) sur la page entière */
+  touch-action: none;
 }
 
 /* ─── App container : exactement l'écran visible ─────────────────────────── */
@@ -66,6 +70,7 @@ header h1 {
   right: 30px;
 }
 
+/* Bouton juste sous le h1, aligné à droite */
 header button {
   top: 58px;
   right: 30px;
@@ -96,14 +101,14 @@ main {
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 70px 20px;
-  /* Rend cqw/cqh disponibles pour .maze, basés sur la boîte de contenu de main */
+  /* Le HUD est désormais entièrement en haut : timer (gauche) + h1/bouton (droite) */
+  padding: 110px 20px 20px 20px;
   container-type: size;
 }
 
 @media (orientation: landscape) {
   main {
-    padding: 16px 100px 50px 100px;
+    padding: 110px 120px 20px 120px;
   }
 }
 

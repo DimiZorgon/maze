@@ -78,6 +78,8 @@ function App() {
   }, []);
 
   const handleTouchMove = useCallback((e: TouchEvent) => {
+    // Bloque le scroll/bounce natif du navigateur mobile pour libérer le swipe
+    e.preventDefault();
     if (!touchStart.current) return;
     const touchEnd = { x: e.touches[0].clientX, y: e.touches[0].clientY };
     const dx = touchEnd.x - touchStart.current.x;
